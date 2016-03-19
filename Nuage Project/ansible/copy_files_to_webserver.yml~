@@ -1,0 +1,8 @@
+- hosts: linode
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  tasks:
+    - copy:
+        src: /etc/ansible/WebServerFiles/
+        dest: /var/www

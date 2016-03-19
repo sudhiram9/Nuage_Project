@@ -1,0 +1,13 @@
+---
+- hosts: haproxy
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: "install haproxy"
+      apt: name={{ item }} state=present
+      with_items:
+        - haproxy
+    
+    - name: "Enable init script"
+      replace: dest=/etc/default/haproxy regexp='ENABLED=0' replace='ENABLED=1'

@@ -1,0 +1,12 @@
+---
+# Handlers for webserver installations
+
+- name: "restart iptables"
+  action: service name=iptables-persistent state=restarted
+  become: yes
+  become_method: sudo 
+
+- name: "restart haproxy"
+  action: service name=haproxy state=restarted
+  become: yes
+  become_method: sudo

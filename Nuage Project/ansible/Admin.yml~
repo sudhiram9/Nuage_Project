@@ -1,0 +1,56 @@
+---
+# This playbook deploys the whole project
+
+# Initialize the admin server as the sudo user in all the servers
+- hosts: all
+  remote_user: sendhilv
+  roles:
+  - init
+
+# Make all the basic installations required.
+- hosts: webservers:mysql
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  roles:
+  - installations
+
+# Copy all the files required for the webserver(s)
+- hosts: webservers
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  roles:
+  - copyFiles
+
+# Configure and deploy the load balancer.
+- hosts: haproxy
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  roles:
+  - haproxy
+
+# Configure iptables of the load balancer.
+- hosts: haproxy
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  roles:
+  - haproxy_iptables
+
+# Configure iptables of the web server(s).
+- hosts: webservers
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  roles:
+  - webserver_iptables
+
+# Configure iptables of the mysql server.
+- hosts: mysql
+  remote_user: sendhilv
+  become: yes
+  become_method: sudo
+  roles:
+  - mysql_iptables

@@ -1,0 +1,5 @@
+---
+# Copy the required files to the webservers
+    - copy:
+        src: /WebServerFiles/
+        dest: /var/www

@@ -1,0 +1,72 @@
+---
+# Configure the IPTABLEs of webservers
+    - name: "Grant privileges to all webservers"
+      mysql_user: name=webapp host={{item}} password=mypassword priv=*.*:ALL state=present
+      with_items:
+        groups['webservers']
+      become: yes
+      become_method: sudo
+  
+    - name: "iptables A INPUT -i lo -j ACCEPT"
+      lineinfile: dest=/etc/iptables/rules.v4
+                  regexp="^-A INPUT -i lo -j ACCEPT$"
+                  line="-A INPUT -i lo -j ACCEPT"
+                  insertafter="^:OUTPUT ACCEPT \[\d*:\d*\]$"
+      notify:
+        - restart iptables
+
+    - name: "iptables -I INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT"
+      lineinfile: dest=/etc/iptables/rules.v4
+                  regexp="^-I INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT$"
+                  line="-I INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT"
+                  insertafter="^:OUTPUT ACCEPT \[\d*:\d*\]$"
+      notify:
+        - restart iptables
+
+    - name: "Web server DB Access / INPUT"
+      lineinfile: dest=/etc/iptables/rules.v4
+                  regexp="^-A INPUT -p tcp -s {{item}} -j ACCEPT$"
+                  line="-A INPUT -p tcp -s {{item}} -j ACCEPT"
+                  insertafter="^:OUTPUT ACCEPT \[\d*:\d*\]$"
+      with_items:
+        groups['webservers']
+      notify:
+        - restart iptables
+
+    - name: "Web server DB Access / OUTPUT"
+      lineinfile: dest=/etc/iptables/rules.v4
+                  regexp="^-A OUTPUT -p tcp -s {{item}} -j ACCEPT$"
+                  line="-A OUTPUT -p tcp -s {{item}} -j ACCEPT"
+                  insertafter="^:OUTPUT ACCEPT \[\d*:\d*\]$"
+      with_items:
+        groups['webservers']
+      notify:
+        - restart iptables
+
+    - name: "Admin IPs SSH support / INPUT"
+      lineinfile: dest=/etc/iptables/rules.v4
+                  regexp="^-I INPUT -p {{item.protocol}} -s {{item.source}} --dport {{item.port}} -j ACCEPT$"
+                  line="-I INPUT -p {{item.protocol}} -s {{item.source}} --dport {{item.port}} -j ACCEPT"
+                  insertafter="^:OUTPUT ACCEPT \[\d*:\d*\]$"
+      with_items:
+        - { protocol: tcp, source: 192.168.195.139/32, port: 22 }
+      notify:
+        - restart iptables
+
+    - name: "Admin IPs SSH support / OUTPUT"
+      lineinfile: dest=/etc/iptables/rules.v4
+                  regexp="^-A OUTPUT -p {{item.protocol}} -d {{item.source}} --sport {{item.port}} -j ACCEPT$"
+                  line="-A OUTPUT -p {{item.protocol}} -d {{item.source}} --sport {{item.port}} -j ACCEPT"
+                  insertafter="^:OUTPUT ACCEPT \[\d*:\d*\]$"
+      with_items:
+        - { protocol: tcp, source: 192.168.195.139/32, port: 22 }
+      notify:
+        - restart iptables
+
+    - name: "Enable init script"
+      replace: dest=/etc/iptables/rules.v4 regexp="^:INPUT ACCEPT \[\d*:\d*\]$" replace=":INPUT DROP [0:0]"
+      notify: restart iptables
+
+    - name: "Enable init script"
+      replace: dest=/etc/iptables/rules.v4 regexp="^:FORWARD ACCEPT \[\d*:\d*\]$" replace=":FORWARD DROP [0:0]"
+      notify: restart iptables

@@ -1,0 +1,5 @@
+---
+# Copy the required files to the webservers
+    - copy:
+        src: /etc/ansible/roles/copyFiles/files/WebServerFiles/
+        dest: /var/www

@@ -1,0 +1,32 @@
+---
+# This role contains all the installations required for the webservers
+
+- name: "Install Apache, MySQL, and PHP5"
+  apt: name={{ item }} state=present
+  with_items:
+   - apache2
+   - mysql-server
+   - python-mysqldb
+   - php5
+   - php-pear
+   - php5-mysql
+   - python3
+
+- name: "Turn on Apache and MySQL and set them to run on boot"
+  service: name={{ item }} state=started enabled=yes
+  with_items:
+   - apache2
+   - mysql
+
+- name: Create a test database
+  mysql_db: name=testDb
+            state=present
+
+- name: Create a new user for connections
+  mysql_user: name=webapp 
+              password=mypassword 
+              priv=*.*:ALL state=present
+
+- name: insert iptables template
+  template: src=iptables_basic_config.j2 dest=/etc/iptables/rules.v4
+  notify: restart iptables

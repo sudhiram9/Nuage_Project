@@ -1,0 +1,21 @@
+---
+# Initialize the admin as the sudo user in the web servers
+
+    - name: "Create a secondary, non-root user"
+      user: name="sudhiadmin"
+            password='$6$rounds=656000$P2RaNXVxaNwyvqwE$uhSRFrewsnNxWBfDsw.c1GEnMipc4t1GOACHIPwa0wCHVug.OxudPGseq65SuO4ujhZwhbPNq/IiCl6XM9/9A0' 
+            shell=/bin/bash
+      become: yes
+      become_method: sudo
+
+    - name: Add remote authorized key to allow future passwordless logins
+      authorized_key: user="sudhiadmin" key="{{ lookup('file', '/home/sendhilv/.ssh/id_rsa.pub') }}"
+      become: yes
+      become_method: sudo 
+    - name: Add normal user to sudoers
+      lineinfile: dest=/etc/sudoers
+                  regexp="sudhiadmin ALL"
+                  line="sudhiadmin ALL=(ALL) ALL"
+                  state=present
+      become: yes
+      become_method: sudo

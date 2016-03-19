@@ -1,0 +1,238 @@
+sendhilv@ubuntu:/etc/ansible$ ansible-playbook --ask-pass -u root Admin.yml --ask-sudo-pass
+SSH password: 
+SUDO password[defaults to SSH password]: 
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.154]
+ok: [192.168.195.139]
+ok: [192.168.195.152]
+ok: [192.168.195.150]
+ok: [192.168.195.158]
+
+TASK [init : Create a secondary, non-root user] ********************************
+ok: [192.168.195.154]
+ok: [192.168.195.150]
+ok: [192.168.195.152]
+ok: [192.168.195.158]
+ok: [192.168.195.139]
+
+TASK [init : Add remote authorized key to allow future passwordless logins] ****
+ok: [192.168.195.150]
+ok: [192.168.195.152]
+ok: [192.168.195.154]
+ok: [192.168.195.139]
+ok: [192.168.195.158]
+
+TASK [init : Add normal user to sudoers] ***************************************
+ok: [192.168.195.154]
+ok: [192.168.195.150]
+ok: [192.168.195.152]
+ok: [192.168.195.158]
+ok: [192.168.195.139]
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.152]
+ok: [192.168.195.150]
+ok: [192.168.195.158]
+
+TASK [installations : Install Apache, MySQL, and PHP5] *************************
+ok: [192.168.195.152] => (item=[u'apache2', u'mysql-server', u'python-mysqldb', u'php5', u'php-pear', u'php5-mysql', u'python3'])
+ok: [192.168.195.150] => (item=[u'apache2', u'mysql-server', u'python-mysqldb', u'php5', u'php-pear', u'php5-mysql', u'python3'])
+ok: [192.168.195.158] => (item=[u'apache2', u'mysql-server', u'python-mysqldb', u'php5', u'php-pear', u'php5-mysql', u'python3'])
+
+TASK [installations : Turn on Apache and MySQL and set them to run on boot] ****
+ok: [192.168.195.152] => (item=apache2)
+ok: [192.168.195.152] => (item=mysql)
+ok: [192.168.195.150] => (item=apache2)
+ok: [192.168.195.150] => (item=mysql)
+ok: [192.168.195.158] => (item=apache2)
+ok: [192.168.195.158] => (item=mysql)
+
+TASK [installations : Create a test database] **********************************
+ok: [192.168.195.152]
+ok: [192.168.195.158]
+ok: [192.168.195.150]
+
+TASK [installations : Create a new user for connections] ***********************
+ok: [192.168.195.152]
+ok: [192.168.195.158]
+ok: [192.168.195.150]
+
+TASK [installations : insert iptables template] ********************************
+changed: [192.168.195.152]
+changed: [192.168.195.150]
+changed: [192.168.195.158]
+
+RUNNING HANDLER [installations : restart iptables] *****************************
+changed: [192.168.195.152]
+changed: [192.168.195.158]
+changed: [192.168.195.150]
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.150]
+ok: [192.168.195.152]
+
+TASK [copyFiles : copy] ********************************************************
+changed: [192.168.195.152]
+changed: [192.168.195.150]
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.154]
+
+TASK [haproxy : install haproxy] ***********************************************
+ok: [192.168.195.154] => (item=[u'haproxy'])
+
+TASK [haproxy : Enable init script] ********************************************
+ok: [192.168.195.154]
+
+TASK [haproxy : insert iptables template] **************************************
+changed: [192.168.195.154]
+
+TASK [haproxy : Start the haproxy service] *************************************
+ok: [192.168.195.154]
+
+TASK [haproxy : insert iptables template] **************************************
+changed: [192.168.195.154]
+
+RUNNING HANDLER [haproxy : restart haproxy] ************************************
+changed: [192.168.195.154]
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.154]
+
+TASK [haproxy_iptables : iptables -A INPUT -i lo -j ACCEPT] ********************
+changed: [192.168.195.154]
+
+TASK [haproxy_iptables : iptables -A OUTPUT -o lo -j ACCEPT] *******************
+changed: [192.168.195.154]
+
+TASK [haproxy_iptables : iptables -I INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT] ***
+changed: [192.168.195.154]
+
+TASK [haproxy_iptables : iptables -I OUTPUT -o eth0 -d 0.0.0.0/0 -j ACCEPT] ****
+changed: [192.168.195.154]
+
+TASK [haproxy_iptables : Load Balancer support / INPUT] ************************
+changed: [192.168.195.154] => (item=192.168.195.150)
+changed: [192.168.195.154] => (item=192.168.195.152)
+
+TASK [haproxy_iptables : Load Balancer support / OUTPUT] ***********************
+changed: [192.168.195.154] => (item=192.168.195.150)
+changed: [192.168.195.154] => (item=192.168.195.152)
+
+TASK [haproxy_iptables : Admin IPs SSH support / INPUT] ************************
+changed: [192.168.195.154] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+
+TASK [haproxy_iptables : Admin IPs SSH support / OUTPUT] ***********************
+changed: [192.168.195.154] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+
+TASK [haproxy_iptables : Admin IPs SSH support / OUTPUT] ***********************
+changed: [192.168.195.154] => (item=192.168.195.150)
+changed: [192.168.195.154] => (item=192.168.195.152)
+
+RUNNING HANDLER [haproxy_iptables : restart iptables] **************************
+changed: [192.168.195.154]
+
+RUNNING HANDLER [haproxy_iptables : restart haproxy] ***************************
+changed: [192.168.195.154]
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.152]
+ok: [192.168.195.150]
+
+TASK [webserver_iptables : Enable init script] *********************************
+changed: [192.168.195.152]
+changed: [192.168.195.150]
+
+TASK [webserver_iptables : Enable init script] *********************************
+changed: [192.168.195.152]
+changed: [192.168.195.150]
+
+TASK [webserver_iptables : iptables A INPUT -i lo -j ACCEPT] *******************
+changed: [192.168.195.150]
+changed: [192.168.195.152]
+
+TASK [webserver_iptables : iptables -I INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT] ***
+changed: [192.168.195.150]
+changed: [192.168.195.152]
+
+TASK [webserver_iptables : Load Balancer & Mysql support / INPUT] **************
+changed: [192.168.195.152] => (item={u'source': u'192.168.195.154/32', u'protocol': u'tcp'})
+changed: [192.168.195.152] => (item={u'source': u'192.168.195.158/32', u'protocol': u'tcp'})
+changed: [192.168.195.150] => (item={u'source': u'192.168.195.154/32', u'protocol': u'tcp'})
+changed: [192.168.195.150] => (item={u'source': u'192.168.195.158/32', u'protocol': u'tcp'})
+
+TASK [webserver_iptables : Load Balancer & Mysql support / OUTPUT] *************
+changed: [192.168.195.150] => (item={u'source': u'192.168.195.154/32', u'protocol': u'tcp'})
+changed: [192.168.195.150] => (item={u'source': u'192.168.195.158/32', u'protocol': u'tcp'})
+changed: [192.168.195.152] => (item={u'source': u'192.168.195.154/32', u'protocol': u'tcp'})
+changed: [192.168.195.152] => (item={u'source': u'192.168.195.158/32', u'protocol': u'tcp'})
+
+TASK [webserver_iptables : Admin IPs SSH support / INPUT] **********************
+changed: [192.168.195.150] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+changed: [192.168.195.152] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+
+TASK [webserver_iptables : Admin IPs SSH support / OUTPUT] *********************
+changed: [192.168.195.150] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+changed: [192.168.195.152] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+
+RUNNING HANDLER [webserver_iptables : restart iptables] ************************
+changed: [192.168.195.152]
+changed: [192.168.195.150]
+
+PLAY ***************************************************************************
+
+TASK [setup] *******************************************************************
+ok: [192.168.195.158]
+
+TASK [mysql_iptables : Grant privileges to all webservers] *********************
+ok: [192.168.195.158] => (item=192.168.195.150)
+ok: [192.168.195.158] => (item=192.168.195.152)
+
+TASK [mysql_iptables : iptables A INPUT -i lo -j ACCEPT] ***********************
+changed: [192.168.195.158]
+
+TASK [mysql_iptables : iptables -I INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT] ***
+changed: [192.168.195.158]
+
+TASK [mysql_iptables : Web server DB Access / INPUT] ***************************
+changed: [192.168.195.158] => (item=192.168.195.150)
+changed: [192.168.195.158] => (item=192.168.195.152)
+
+TASK [mysql_iptables : Web server DB Access / OUTPUT] **************************
+changed: [192.168.195.158] => (item=192.168.195.150)
+changed: [192.168.195.158] => (item=192.168.195.152)
+
+TASK [mysql_iptables : Admin IPs SSH support / INPUT] **************************
+changed: [192.168.195.158] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+
+TASK [mysql_iptables : Admin IPs SSH support / OUTPUT] *************************
+changed: [192.168.195.158] => (item={u'source': u'192.168.195.139/32', u'protocol': u'tcp', u'port': 22})
+
+TASK [mysql_iptables : Enable init script] *************************************
+changed: [192.168.195.158]
+
+TASK [mysql_iptables : Enable init script] *************************************
+changed: [192.168.195.158]
+
+RUNNING HANDLER [mysql_iptables : restart iptables] ****************************
+changed: [192.168.195.158]
+
+PLAY RECAP *********************************************************************
+192.168.195.139            : ok=4    changed=0    unreachable=0    failed=0   
+192.168.195.150            : ok=23   changed=12   unreachable=0    failed=0   
+192.168.195.152            : ok=23   changed=12   unreachable=0    failed=0   
+192.168.195.154            : ok=23   changed=14   unreachable=0    failed=0   
+192.168.195.158            : ok=22   changed=11   unreachable=0    failed=0  
